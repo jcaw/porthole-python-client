@@ -19,7 +19,7 @@ more important than documentation - I can update the README.
 ## Formatting
 
 Code is formatted with the [black](https://github.com/python/black)
-auto-formatter because manual formatting is a waste of time. Make sure your code
+auto-formatter. Make sure your code
 has been blackened before submission. `python-black-on-save-mode` from
 [emacs-python-black](https://github.com/wbolster/emacs-python-black) will
 blacken your code automatically.
