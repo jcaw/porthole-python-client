@@ -60,8 +60,8 @@ class Test_call_against_real_server:
     These require a Porthole server to be running.
 
     The server should be called "python-test-server". It should have the
-    function "+" exposed. Start it by evaluating (place point after, then \"C-x
-    C-e\"):
+    function "+" exposed. Start it by evaluating the following (place point
+    after, then \"C-x C-e\"):
 
     (porthole-start-server "python-test-server" :exposed-functions '(+))
 
