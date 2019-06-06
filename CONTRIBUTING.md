@@ -5,11 +5,11 @@ Contributions are welcome. Just make a pull request!
 ## Pull Request Process
 
 1. Format your code with the [black](https://github.com/python/black) auto-formatter.
-2. Open a pull request against the [develop](tree/develop) branch.
+2. Open a pull request against the [develop](https://github.com/jcaw/porthole-client-python/tree/develop) branch.
 
 That's it!
 
-Please pull against the [develop](tree/develop) branch only. Changes will be
+Please pull against the [develop](https://github.com/jcaw/porthole-client-python/tree/develop) branch only. Changes will be
 merged into master once they're determined to be stable.
 
 If your change affects the user experience, you can update
