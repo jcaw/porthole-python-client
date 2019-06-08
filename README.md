@@ -4,7 +4,7 @@
 
 <h1 align=center>Porthole Python Client</h1>
 
-<p align=center>Python client for Emacs RPC servers started with [Porthole](https://github.com/jcaw/porthole).</p>
+<p align=center>Python client for Emacs RPC servers started with <a href="https://github.com/jcaw/porthole">Porthole</a>.</p>
 
 <p align=center>
  :sailboat:
