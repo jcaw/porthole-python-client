@@ -112,6 +112,26 @@ class HTTPError(PortholeCallError):
         self.content_type = response.content_type
 
 
+def _get_temp_folder_linux():
+    """Get the temp folder on a Linux system.
+
+    This method may also be used by unknown operating systems.
+
+    """
+    # On Linux, we prefer to use "$XDG_RUNTIME_DIR", since it is dedicated
+    # to this kind of purpose. If it's not available, Porthole will create
+    # a new temporary directory in the user's home dir.
+    if "XDG_RUNTIME_DIR" in os.environ:
+        return os.environ["XDG_RUNTIME_DIR"]
+    elif "HOME" in os.environ:
+        return os.path.join(os.environ["HOME"], "tmp")
+    else:
+        raise IOError(
+            "Neither $XDG_RUNTIME_DIR or $HOME could be read. Cannot "
+            "automatically query server information on this system."
+        )
+
+
 def _get_temp_folder():
     """Get the temp folder where session information will be stored.
 
@@ -122,37 +142,17 @@ def _get_temp_folder():
     """
     system = platform.system()
     if system.lower() == "linux":
-        # On Linux, we prefer to use "$XDG_RUNTIME_DIR", since it is dedicated
-        # to this kind of purpose. If it's not available, Porthole will create
-        # a new temporary directory in the user's home dir.
-        if "XDG_RUNTIME_DIR" in os.environ:
-            return os.environ["XDG_RUNTIME_DIR"]
-        elif "HOME" in os.environ:
-            return os.path.join(os.environ["HOME"], "tmp")
-        else:
-            raise IOError(
-                "Neither $XDG_RUNTIME_DIR or $HOME could be read. Cannot "
-                "automatically query server information on this Linux system."
-            )
+        return get_temp_folder_linux()
     elif system.lower() == "windows":
         # Windows is easy. %TEMP% should always exist, and be a user-restricted
         # directory.
-        temp_dir = os.environ("TEMP")
+        return os.environ("TEMP")
     elif system.lower() == "mac":
-        # TODO: Figure out an $XDG_RUNTIME_DIR equivalent on Mac.
-        raise OSError("Temp path not set up for Mac yet.")
+        return os.path.join(os.environ("HOME"), "Library")
     else:
-        # Unknown operating systems are harder. If the system has a HOME
-        # directory, we try and use that. Otherwise, we drop support for the
-        # system.
-        if "HOME" in os.environ and os.path.isdir(os.environ["HOME"]):
-            # TODO: Modify Porthole to use this fallback heuristic too.
-            return os.path.join(os.environ["HOME"], "tmp")
-        raise OSError(
-            "Cannot read server information automatically on this system: "
-            '"{}". No environment variable named "HOME" could be found.'
-            "".format(platform.system())
-        )
+        # On unknown systems, Porthole falls back to the same method it uses on
+        # Linux.
+        return get_temp_folder_linux()
 
 
 # Porthole stores server sessions in its own subdirectory.
