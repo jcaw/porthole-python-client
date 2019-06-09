@@ -8,7 +8,4 @@ from emacs_porthole.exceptions import (
     HTTPError,
 )
 
-from emacs_porthole.json_rpc import (
-    JsonRpcError,
-    
-)
+from emacs_porthole.json_rpc import MethodNotExposedError, InternalMethodError
