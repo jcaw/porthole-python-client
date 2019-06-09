@@ -163,7 +163,7 @@ TEMP_FOLDER = os.path.join(_get_temp_folder(), "emacs-porthole")
 def call(server, method, params, timeout=None):
     """Make an RPC call to a Porthole server."""
     # TODO: Flesh out docstring
-    json_rpc_response = call_raw(server_name, method, params, timeout=timeout)
+    json_rpc_response = call_raw(server, method, params, timeout=timeout)
     if "result" in json_rpc_response:
             # Successful call! Return it.
         return json_rpc_response["result"]
