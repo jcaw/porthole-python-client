@@ -320,8 +320,8 @@ def _send_request_from_cache(server_name, json):
                 # return the response.
                 return response
         else:
-            _cache_session(session_on_disk)
-            respose, error = _try_to_post(server_name, request, session)
+            _cache_session(server_name, session_on_disk)
+            response, error = _try_to_post(server_name, json, session_on_disk)
             if error:
                 raise error
             else:
