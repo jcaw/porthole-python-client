@@ -142,7 +142,7 @@ def _get_temp_folder():
     """
     system = platform.system()
     if system.lower() == "linux":
-        return get_temp_folder_linux()
+        return _get_temp_folder_linux()
     elif system.lower() == "windows":
         # Windows is easy. %TEMP% should always exist, and be a user-restricted
         # directory.
@@ -152,7 +152,7 @@ def _get_temp_folder():
     else:
         # On unknown systems, Porthole falls back to the same method it uses on
         # Linux.
-        return get_temp_folder_linux()
+        return _get_temp_folder_linux()
 
 
 # Porthole stores server sessions in its own subdirectory.
