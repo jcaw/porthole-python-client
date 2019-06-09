@@ -105,15 +105,34 @@ These errors are raised when `emacs_porthole` can't connect.
   `ServerNotRunningError` and `TimeoutError`. You can use this error to catch
   all connection issues.
 
+More specific errors exist, which are subclasses of these errors.
+
 ### RPC-Related Errors
 
 This error is raised when a connection was made, but there was a problem with the
 underlying RPC call. There are 5 of these errors, but you should only encounter
 two:
 
--
+- `InternalMethodError` - This will be raised if Emacs tried to execute your
+  function, but it raised an error. This is the RPC error you're most likely to
+  encounter. The underlying Elisp error will be attached to this exception in
+  the following members:
+  - `.elisp_error_type` - This holds the type of error that was raised. It will
+    be a string, representing the error's symbol.
+  - `.elisp_error_data` - Additional data about the error. Elisp errors are
+    `cons` cells, composed of an error symbol (the type) and a `cdr` list
+    containing the data. This member will be the data list, translated into
+    Python.
 
-If you see one of the other errors, something went wrong. Please [open an
+    Note that it's possible for Emacs to raise an error that can't be encoded
+    into JSON. In that case, the data will be replaced by a string placeholder,
+    explaining the problem. In practice, you are unlikely to encounter this.
+
+- `MethodNotExposedError` - This will be raised if you try to call a function
+  that isn't exposed, or doesn't exist. It means the Porthole server has not
+  allowed execution of your desired function.
+
+If you see one of the other `json_rpc` errors, something went wrong. Please [open an
 issue](http://github.com/jcaw/porthole-python-client/issues).
 
 Note that these errors are only raised by the `call` method. See the next
