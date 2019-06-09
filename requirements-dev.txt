@@ -1,0 +1,4 @@
+# These requirements are only required for development.
+requests
+nose
+# You also need to have some variant of netcat install, so `nc` can be called.
