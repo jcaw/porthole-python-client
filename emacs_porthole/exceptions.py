@@ -5,8 +5,7 @@ class PortholeCallError(RuntimeError):
     """Base class for all errors that might occur during a Porthole call."""
 
 
-class PortholeConnectionError(PortholeCallError,
-                              requests.exceptions.RequestException):
+class PortholeConnectionError(PortholeCallError, requests.exceptions.RequestException):
     """Base class for all Porthole connection-related errors."""
 
     def __init__(self, message, underlying_error=None):
@@ -14,8 +13,9 @@ class PortholeConnectionError(PortholeCallError,
         self.underlying_error = underlying_error
 
 
-class ServerNotRunningError(PortholeConnectionError,
-                            requests.exceptions.ConnectionError):
+class ServerNotRunningError(
+    PortholeConnectionError, requests.exceptions.ConnectionError
+):
     """Error to be raised when the server does not appear to be running."""
 
 
