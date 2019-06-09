@@ -17,8 +17,9 @@
 [Porthole](https://github.com/jcaw/porthole) lets you start RPC servers in
 Emacs. These servers allow Elisp to be invoked remotely via HTTP requests.
 
-This is a client written in Python that makes Porthole calls easy. Here's how
-you'd make a simple call (let's ignore error handling, for now):
+This is a client written in Python that makes it easier to communicate with
+Porthole. Here's how you'd make a simple call (let's ignore error handling, for
+now):
 
 ```python
 result = emacs_porthole.call(server="my-server", method="insert", params=["Some text to insert."])
