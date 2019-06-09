@@ -85,8 +85,21 @@ TEMP_FOLDER = os.path.join(_get_temp_folder(), "emacs-porthole")
 
 # TODO: Set default timeout
 def call(server, method, params, timeout=None):
-    """Make an RPC call to a Porthole server."""
-    # TODO: Flesh out docstring
+    """Make an RPC call to a Porthole server.
+
+    Please see the README for full usage examples and error handling.
+
+    :param server: The name of the Porthole server.
+    :type server: str
+    :param method: The name of the method you want to call.
+    :type method: str
+    :param params: The parameters to pass to the method you want to call.
+    :type params: list
+    :param timeout: The amount of time, in seconds, to wait before the request
+      times out.
+    :type timeout: float
+
+    """
     json_rpc_response = call_raw(server, method, params, timeout=timeout)
     if "result" in json_rpc_response:
         # Successful call! Return it.
@@ -98,7 +111,21 @@ def call(server, method, params, timeout=None):
 
 
 def call_raw(server_name, method, params, timeout=None):
-    """Get the raw JSON-RPC response from an RPC call to Porthole."""
+    """Get the raw JSON-RPC response from an RPC call to Porthole.
+
+    Please see the README for full usage examples and error handling.
+
+    :param server: The name of the Porthole server.
+    :type server: str
+    :param method: The name of the method you want to call.
+    :type method: str
+    :param params: The parameters to pass to the method you want to call.
+    :type params: list
+    :param timeout: The amount of time, in seconds, to wait before the request
+      times out.
+    :type timeout: float
+
+    """
     validate_server_name(server_name)
     if not isinstance(params, list):
         raise ValueError("`params` must be a list.")
