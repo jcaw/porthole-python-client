@@ -238,43 +238,77 @@ class Test_call_against_real_server:
             _raise_unexpected(e)
         eq_(result, 6)
 
-    # def test_alternate_tcp_process(self):
-    #     """Test what happens when the call contacts the wrong process.
+    def test_tcp_squatter(self):
+        """Test what happens when the call contacts the wrong process.
 
-    #     The cache may be out of date, and pointing to an out-of-date process.
+        The cache may be out of date, and pointing to an out-of-date process.
 
-    #     """
-    #     # Load the actual server's info
-    #     session = self.read_session_from_file()
-    #     # We ensure the session was loaded
-    #     assert "port" in session, session
-    #     # Cache it
-    #     emacs_porthole._cache_session(self.SERVER_NAME, session)
-    #     one_port_down = session["port"] - 1
-    #     assert distutils.spawn.find_executable(
-    #         "nc"
-    #     ), "Netcat is needed to test TCP clashes. Could not find `nc`."
-    #     # Open a dummy netcat TCP process on the next port down. It's possible
-    #     # to get a port clash here - if we do, that's ok. It doesn't mean
-    #     # `emacs_porthole.py` is broken, it just means we were unlucky. Re-run
-    #     # the tests a few times until you hit a free pair.
-    #     nc_process = subprocess.Popen(["nc", "–l", "{}".format(one_port_down)])
-    #     # Give it a bit to start
-    #     time.sleep(0.1)
-    #     # Make sure it's running
-    #     assert _check_ping(one_port_down), "The nc server didn't seem to start."
-    #     try:
-    #         # Now modify the cache to point to the NC process. It should
-    #         # connect, then fail, then retry successfully from disk.
-    #         emacs_porthole._server_info_cache[self.SERVER_NAME]["port"] = one_port_down
-    #         result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
-    #     finally:
-    #         # Clean up the nc process
-    #         nc_process.kill()
-    #     eq_(result, 6)
+        """
+        # Load the actual server's info
+        session = self.read_session_from_file()
+        # We ensure the session was loaded
+        assert "port" in session, session
+        # Cache it
+        emacs_porthole._cache_session(self.SERVER_NAME, session)
+        one_port_down = session["port"] - 1
+        assert distutils.spawn.find_executable(
+            "nc"
+        ), "Netcat is needed to test TCP clashes. Could not find `nc`."
+        # Open a dummy netcat TCP process on the next port down. It's possible
+        # to get a port clash here - if we do, that's ok. It doesn't mean
+        # `emacs_porthole.py` is broken, it just means we were unlucky. Re-run
+        # the tests a few times until you hit a free pair.
+        nc_process = subprocess.Popen(["nc", "-l", "{}".format(one_port_down)])
+        # Give it a bit to start
+        time.sleep(0.5)
+        # Make sure it's running
+        assert _check_ping(one_port_down), "The nc server didn't seem to start."
+        try:
+            # Now modify the cache to point to the NC process. It should
+            # connect, then fail, then retry successfully from disk.
+            emacs_porthole._server_info_cache[self.SERVER_NAME]["port"] = one_port_down
+            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+        finally:
+            # Clean up the nc process
+            nc_process.kill()
+        eq_(result, 6)
 
-    # TODO: Test a cache that specifically points to a different *HTTP* server
-    #   (not just a TCP socket).
+    def test_http_squatter(self):
+        """Test what happens when the call contacts the wrong process.
+
+        The cache may be out of date, and pointing to an out-of-date process.
+
+        """
+        # Load the actual server's info
+        session = self.read_session_from_file()
+        # We ensure the session was loaded
+        assert "port" in session, session
+        # Cache it
+        emacs_porthole._cache_session(self.SERVER_NAME, session)
+        # Use a different port to the NC test, in case the NC process didn't end.
+        two_ports_down = session["port"] - 2
+        assert distutils.spawn.find_executable(
+            "nc"
+        ), "Netcat is needed to test TCP clashes. Could not find `nc`."
+        # Open a dummy netcat HTTP server on the next port down. It's possible
+        # to get a port clash here - if we do, that's ok. It doesn't mean
+        # `emacs_porthole.py` is broken, it just means we were unlucky. Re-run
+        # the tests a few times until you hit a free pair.
+        http_process = subprocess.Popen(["python3", "-m", "http.server", "{}".format(two_ports_down)])
+        # Give it a bit to start (HTTP servers are slow to start. This is an
+        # unreliable heuristic - bump the number up if it's failing.)
+        time.sleep(0.5)
+        # Make sure it's running
+        assert _check_ping(two_ports_down), "The HTTP server didn't seem to start."
+        try:
+            # Now modify the cache to point to the bad HTTP process. It should
+            # connect, return an error, then retry successfully from disk.
+            emacs_porthole._server_info_cache[self.SERVER_NAME]["port"] = two_ports_down
+            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+        finally:
+            # Clean up the nc process
+            http_process.kill()
+        eq_(result, 6)
 
 
 class Test_valid_response:
