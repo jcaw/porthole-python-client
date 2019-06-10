@@ -1,3 +1,11 @@
+"""Tests for the Porthole Python Client.
+
+Tests are currently all included in this file. There is one integration test
+which needs to be run against a running Porthole server. The rest are unit
+tests.
+
+"""
+
 import inspect
 import os
 import shutil
