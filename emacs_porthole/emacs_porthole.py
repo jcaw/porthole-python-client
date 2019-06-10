@@ -174,8 +174,7 @@ def call_raw(server_name, method, params, timeout=DEFAULT_TIMEOUT):
         )
     else:
         raise HTTPError(
-            "HTTP response {} received.".format(response.status_code),
-            response=response,
+            "HTTP response {} received.".format(response.status_code), response=response
         )
 
 
@@ -268,7 +267,9 @@ def _session_info_cached(server_name):
 def _send_request_from_cache(server_name, json, timeout=None):
     """Make a call to Porthole. Try to use the cache, if possible."""
     cached_session = _session_from_cache(server_name)
-    response, requests_error = _try_to_post(server_name, json, cached_session, timeout=timeout)
+    response, requests_error = _try_to_post(
+        server_name, json, cached_session, timeout=timeout
+    )
     request_seems_to_have_failed = requests_error or not _response_ok(response)
     if request_seems_to_have_failed:
         # There was a problem. Make sure we have the correct details
@@ -286,7 +287,9 @@ def _send_request_from_cache(server_name, json, timeout=None):
                 return response
         else:
             _cache_session(server_name, session_on_disk)
-            response, error = _try_to_post(server_name, json, session_on_disk, timeout=timeout)
+            response, error = _try_to_post(
+                server_name, json, session_on_disk, timeout=timeout
+            )
             if error:
                 raise error
             else:

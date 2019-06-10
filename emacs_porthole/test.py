@@ -37,6 +37,8 @@ test_file = inspect.stack()[0][1]
 TESTS_DIR = os.path.dirname(test_file)
 # Directory for temporary files for the tests
 TESTS_TEMP = os.path.join(TESTS_DIR, "tests_tmp")
+
+
 def setup():
     if not os.path.isdir(TESTS_TEMP):
         os.mkdir(TESTS_TEMP)
@@ -323,7 +325,9 @@ class Test_call_against_real_server:
         # to get a port clash here - if we do, that's ok. It doesn't mean
         # `emacs_porthole.py` is broken, it just means we were unlucky. Re-run
         # the tests a few times until you hit a free pair.
-        http_process = subprocess.Popen(["python3", "-m", "http.server", "{}".format(two_ports_down)])
+        http_process = subprocess.Popen(
+            ["python3", "-m", "http.server", "{}".format(two_ports_down)]
+        )
         # Give it a bit to start (HTTP servers are slow to start. This is an
         # unreliable heuristic - bump the number up if it's failing.)
         time.sleep(0.5)
@@ -354,7 +358,6 @@ class Test_call_against_real_server:
         # Now we wait, to ensure Emacs is no longer busy when we run the next
         # test.
         time.sleep(1.1)
-
 
 
 class Test_valid_response:
@@ -399,7 +402,7 @@ class Test_valid_response_string:
         assert json_rpc.valid_response_string(response_string)
 
     def test_valid_json_invalid_response(self):
-        response_string = "{\"jsonrpc\": \"2.0\", \"salkjslfjk\": null, \"id\": null}"
+        response_string = '{"jsonrpc": "2.0", "salkjslfjk": null, "id": null}'
         assert not json_rpc.valid_response_string(response_string)
 
     def test_invalid_json(self):
