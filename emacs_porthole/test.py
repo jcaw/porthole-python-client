@@ -28,7 +28,7 @@ from emacs_porthole.emacs_porthole import (
 test_file = inspect.stack()[0][1]
 TESTS_DIR = os.path.dirname(test_file)
 # Directory for temporary files for the tests
-TESTS_TEMP = os.path.join(TESTS_DIR, "tmp")
+TESTS_TEMP = os.path.join(TESTS_DIR, "tests_tmp")
 def setup():
     if not os.path.isdir(TESTS_TEMP):
         os.mkdir(TESTS_TEMP)
