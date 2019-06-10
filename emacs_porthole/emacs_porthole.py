@@ -35,6 +35,18 @@ DEFAULT_TIMEOUT = 1
 SESSION_FILE = "session.json"
 
 
+# Dictionary mapping server names to their cached session information.
+#
+# The session information for each server will be a dictionary with the
+# following structure:
+#
+# {
+#     "port": port,
+#     "username": username,
+#     "password": password,
+# }
+#
+# Not all members will necessarily be present.
 _server_info_cache = {}
 
 
