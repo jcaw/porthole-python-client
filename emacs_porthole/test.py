@@ -1,5 +1,6 @@
 import inspect
 import os
+import shutil
 import json
 import distutils.spawn
 from pprint import pprint, pformat
@@ -28,8 +29,14 @@ test_file = inspect.stack()[0][1]
 TESTS_DIR = os.path.dirname(test_file)
 # Directory for temporary files for the tests
 TESTS_TEMP = os.path.join(TESTS_DIR, "tmp")
-if not os.path.isdir(TESTS_TEMP):
-    os.mkdir(TESTS_TEMP)
+def setup():
+    if not os.path.isdir(TESTS_TEMP):
+        os.mkdir(TESTS_TEMP)
+
+
+def teardown():
+    if os.path.isdir(TESTS_TEMP):
+        shutil.rmtree(TESTS_TEMP)
 
 
 def _check_ping(port):
