@@ -55,4 +55,4 @@ class HTTPError(PortholeConnectionError):
         self.response = response
         self.code = response.status_code
         self.content = response.text
-        self.content_type = response.content_type
+        self.content_type = response.headers.get("Content-Type")

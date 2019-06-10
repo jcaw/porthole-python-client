@@ -160,9 +160,7 @@ def call_raw(server_name, method, params, timeout=None):
         )
     else:
         raise HTTPError(
-            "HTTP response {} received.".format(response.error_code),
-            code=response.error_code,
-            message=response.text,
+            "HTTP response {} received.".format(response.status_code),
             response=response,
         )
 
