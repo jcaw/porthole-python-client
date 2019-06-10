@@ -29,6 +29,8 @@ from emacs_porthole import json_rpc
 import uuid
 
 
+# Default timeout, in seconds
+DEFAULT_TIMEOUT = 1
 # Filename part the session info file
 SESSION_FILE = "session.json"
 
@@ -84,7 +86,7 @@ TEMP_FOLDER = os.path.join(_get_temp_folder(), "emacs-porthole")
 
 
 # TODO: Set default timeout
-def call(server, method, params, timeout=None):
+def call(server, method, params, timeout=DEFAULT_TIMEOUT):
     """Make an RPC call to a Porthole server.
 
     Please see the README for full usage examples and error handling.
@@ -110,7 +112,7 @@ def call(server, method, params, timeout=None):
         json_rpc.raise_error(json_rpc_response)
 
 
-def call_raw(server_name, method, params, timeout=None):
+def call_raw(server_name, method, params, timeout=DEFAULT_TIMEOUT):
     """Get the raw JSON-RPC response from an RPC call to Porthole.
 
     Please see the README for full usage examples and error handling.
@@ -237,12 +239,12 @@ def _construct_address(port):
     return "http://localhost:{}".format(port)
 
 
-def _send_request(server_name, json):
+def _send_request(server_name, json, timeout=None):
     """Send a request to `server_name`. Query details automatically."""
     if _session_info_cached(server_name):
-        return _send_request_from_cache(server_name, json)
+        return _send_request_from_cache(server_name, json, timeout=timeout)
     else:
-        return _send_request_from_disk(server_name, json)
+        return _send_request_from_disk(server_name, json, timeout=timeout)
 
 
 def _session_info_cached(server_name):
@@ -251,10 +253,10 @@ def _session_info_cached(server_name):
     return server_name in _server_info_cache
 
 
-def _send_request_from_cache(server_name, json):
+def _send_request_from_cache(server_name, json, timeout=None):
     """Make a call to Porthole. Try to use the cache, if possible."""
     cached_session = _session_from_cache(server_name)
-    response, requests_error = _try_to_post(server_name, json, cached_session)
+    response, requests_error = _try_to_post(server_name, json, cached_session, timeout=timeout)
     request_seems_to_have_failed = requests_error or not _response_ok(response)
     if request_seems_to_have_failed:
         # There was a problem. Make sure we have the correct details
@@ -272,7 +274,7 @@ def _send_request_from_cache(server_name, json):
                 return response
         else:
             _cache_session(server_name, session_on_disk)
-            response, error = _try_to_post(server_name, json, session_on_disk)
+            response, error = _try_to_post(server_name, json, session_on_disk, timeout=timeout)
             if error:
                 raise error
             else:
@@ -282,10 +284,10 @@ def _send_request_from_cache(server_name, json):
         return response
 
 
-def _send_request_from_disk(server_name, json):
+def _send_request_from_disk(server_name, json, timeout=None):
     """Make a request. Read the session info from a file, not the cache."""
     session = _session_from_file(server_name)
-    response, requests_error = _try_to_post(server_name, json, session)
+    response, requests_error = _try_to_post(server_name, json, session, timeout=timeout)
     if requests_error:
         # Re-raise any errors.
         raise requests_error
@@ -299,10 +301,12 @@ def _cache_session(server_name, session):
     _server_info_cache[server_name] = session
 
 
-def _try_to_post(server_name, request, session):
+def _try_to_post(server_name, request, session, timeout=None):
     """Make a POST request to a Porthole server."""
     if not "port" in session:
         raise ValueError("No port number in session information.")
+    if not timeout:
+        timeout = DEFAULT_TIMEOUT
     address = _construct_address(session.get("port"))
     username = session.get("username")
     password = session.get("password")
@@ -312,7 +316,7 @@ def _try_to_post(server_name, request, session):
         # TODO: Maybe disallow requests without authentication?
         auth = None
     try:
-        result = requests.post(address, json=request, auth=auth)
+        result = requests.post(address, json=request, auth=auth, timeout=timeout)
         return result, None
     except requests.exceptions.RequestException as e:
         return None, e

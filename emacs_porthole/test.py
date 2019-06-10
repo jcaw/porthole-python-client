@@ -101,7 +101,7 @@ class Test_call_against_real_server:
     function "+" exposed. Start it by evaluating the following (place point
     after, then \"C-x C-e\"):
 
-    (porthole-start-server "python-test-server" :exposed-functions '(+))
+    (porthole-start-server "python-test-server" :exposed-functions '(+ sleep-for))
 
     To stop, evaluate:
 
@@ -316,6 +316,23 @@ class Test_call_against_real_server:
             # Clean up the nc process
             http_process.kill()
         eq_(result, 6)
+
+    def test_timeout(self):
+        # Tell Emacs to sleep for slightly longer than the timeout. Thus Emacs
+        # won't respond within the allotted time and it should trigger a
+        # timeout.
+        assert_raises(
+            emacs_porthole.TimeoutError,
+            emacs_porthole.call,
+            self.SERVER_NAME,
+            "sleep-for",
+            [1],
+            timeout=0.1,
+        )
+        # Now we wait, to ensure Emacs is no longer busy when we run the next
+        # test.
+        time.sleep(1.1)
+
 
 
 class Test_valid_response:
