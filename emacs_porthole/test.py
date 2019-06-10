@@ -246,9 +246,16 @@ class Test_call_against_real_server:
         eq_(result, 6)
 
     def test_tcp_squatter(self):
-        """Test what happens when the call contacts the wrong process.
+        """Test what happens when the call contacts the wrong HTTP process.
 
-        The cache may be out of date, and pointing to an out-of-date process.
+        The cache may be out of date. Most of the time, it will point to a dead
+        socket, which is easy to deal with. In rare cases, a different TCP
+        process may have started on that socket.
+
+        This test checks that the call can cope with a cache that points to a
+        different TCP process. The new process may respond with mangled
+        information, or it may time out. Either way, the session should be
+        re-read from disk, at which point it should succeed.
 
         """
         # Load the actual server's info
@@ -281,9 +288,16 @@ class Test_call_against_real_server:
         eq_(result, 6)
 
     def test_http_squatter(self):
-        """Test what happens when the call contacts the wrong process.
+        """Test what happens when the call contacts the wrong HTTP process.
 
-        The cache may be out of date, and pointing to an out-of-date process.
+        The cache may be out of date. Most of the time, it will point to a dead
+        socket, which is easy to deal with. In rare cases, a different TCP
+        process may have started on that socket.
+
+        This test checks that the call can cope with a cache that points to a
+        different HTTP server. A server like that will still respond to HTTP
+        requests, so it needs to be handled differently to an arbitrary TCP
+        process.
 
         """
         # Load the actual server's info
