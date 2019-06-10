@@ -46,6 +46,12 @@ class JsonRpcError(PortholeCallError):
                 "validate the response before attempting to attach it to "
                 "this error."
             )
+        self._store_response(response)
+
+    def _store_response(self, response):
+        """Deconstruct the response and attach the components to this error.
+
+        """
         # Most important information is the error, but store the whole response
         # just in case the user wants it.
         #
@@ -113,8 +119,7 @@ class InvalidParamsError(JsonRpcError):
 
     def __init__(self, json_rpc_response):
         super().__init__(
-            json_rpc_response,
-            message="Method cannot be called with these parameters."
+            json_rpc_response, message="Method cannot be called with these parameters."
         )
 
 
@@ -136,12 +141,14 @@ class InternalMethodError(JsonRpcError):
     """
 
     def __init__(self, json_rpc_response):
+        # HACK: Do this early so we can extract info for the error message
+        self._store_response(json_rpc_response)
         super().__init__(
             json_rpc_response,
             message=(
-                "There was an error executing the method. Check the "
-                "`elisp_error_type` and `elisp_error_data` members for "
-                "more."
+                "There was an error executing the method: `{}`. Data: {}".format(
+                    self.elisp_error_type, self.elisp_error_data
+                ),
             ),
         )
 
