@@ -198,3 +198,4 @@ You'll need to parse the JSON-RPC response object yourself.
 ## TODO
 
 - Batch Requests
+- Timeouts
