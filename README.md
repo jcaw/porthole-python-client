@@ -110,9 +110,9 @@ More specific errors exist, which are subclasses of these errors.
 
 ### RPC-Related Errors
 
-This error is raised when a connection was made, but there was a problem with the
-underlying RPC call. There are 5 of these errors, but you should only encounter
-two:
+These errors are raised when a connection was made, but there was a problem with
+the underlying RPC call. There are 5 of these errors, but you should only
+encounter two:
 
 - `InternalMethodError` - This will be raised if Emacs tried to execute your
   function, but it raised an error. This is the RPC error you're most likely to
