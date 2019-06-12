@@ -162,8 +162,8 @@ This will return a JSON-RPC 2.0 response dictionary when successful. The diction
 {
     "jsonrpc": "2.0",
     "error": {
-         "code": -32601,
-         "message": "Function has not been exposed (it may or may not exist). Cannot execute.",
+         "code": -32603,
+         "message": "There was an error calling the method.",
          # The "data" member will be None, unless there is data, then it will be a dict.
          "data": {
              # There is not always an underlying error. This member will only exist when there is.
