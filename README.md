@@ -126,7 +126,7 @@ encounter two:
     Python.
 
     Note that it's possible for Emacs to raise an error that can't be encoded
-    into JSON. In that case, the data will be replaced by a string placeholder,
+    into JSON. In that case, some data will be replaced by a string placeholder,
     explaining the problem. In practice, you are unlikely to encounter this.
 
 - `MethodNotExposedError` - This will be raised if you try to call a function
