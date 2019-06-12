@@ -145,7 +145,7 @@ If you like, you can circumvent the the `call` method and get the raw JSON-RPC
 2.0 response directly. Use the `call_raw` method.
 
 ```python
-json_response_dict = call_raw(server_name, method_name, args)
+json_response_dict = call_raw(server_name, method, params)
 ```
 
 This will return a JSON-RPC 2.0 response dictionary when successful. The dictionary will have the following structure:
