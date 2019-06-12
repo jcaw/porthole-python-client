@@ -96,10 +96,11 @@ These errors are raised when `emacs_porthole` can't connect.
 - `ServerNotRunningError` - This error means the server isn't running.
 
   This error will be raised if there's an error connecting to the Porthole
-  server *other* thana timeout. If the server is dead, the request times out or
-  an HTTP response other that `200: Success` is returned, this will be raised.
+  server *other* than a timeout. If the server is dead, or an HTTP response
+  other that `200: Success` is returned, this will be raised.
 
-- `TimeoutError` - This error will be raised when the request times out. This *normally* means the server is running, but the Emacs session is busy.
+- `TimeoutError` - This error will be raised when the request times out. This
+  *normally* means the server is running, but the Emacs session is busy.
 
 - `PortholeConnectionError` - This is the superclass for both
   `ServerNotRunningError` and `TimeoutError`. You can use this error to catch
