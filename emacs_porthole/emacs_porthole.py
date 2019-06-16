@@ -98,7 +98,7 @@ TEMP_FOLDER = os.path.join(_get_temp_folder(), "emacs-porthole")
 
 
 # TODO: Set default timeout
-def call(server, method, params, timeout=DEFAULT_TIMEOUT):
+def call(server, method, params=[], timeout=DEFAULT_TIMEOUT):
     """Make an RPC call to a Porthole server.
 
     Please see the README for full usage examples and error handling.
@@ -124,7 +124,7 @@ def call(server, method, params, timeout=DEFAULT_TIMEOUT):
         json_rpc.raise_error(json_rpc_response)
 
 
-def call_raw(server_name, method, params, timeout=DEFAULT_TIMEOUT):
+def call_raw(server_name, method, params=[], timeout=DEFAULT_TIMEOUT):
     """Get the raw JSON-RPC response from an RPC call to Porthole.
 
     Please see the README for full usage examples and error handling.
