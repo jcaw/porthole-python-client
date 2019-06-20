@@ -18,8 +18,8 @@ import time
 from nose.tools import assert_raises, eq_
 from unittest.mock import MagicMock, Mock, patch
 
-from emacs_porthole import emacs_porthole, exceptions, json_rpc
-from emacs_porthole.emacs_porthole import (
+from emacs_porthole import core, exceptions, json_rpc
+from emacs_porthole.core import (
     validate_server_name,
     _session_file_path,
     _session_from_file,
@@ -96,7 +96,7 @@ class Test__session_from_file:
         with open(dummy_file_path, "w") as f:
             json.dump(dummy_data, f)
         with patch(
-            "emacs_porthole.emacs_porthole._session_file_path",
+            "emacs_porthole.core._session_file_path",
             return_value=dummy_file_path,
         ):
             assert _session_from_file("any_name") == dummy_data
@@ -133,7 +133,7 @@ class Test_call_against_real_server:
         """
         # HACK: This is a hacky way of bugging developers
         try:
-            return emacs_porthole._session_from_file(self.SERVER_NAME)
+            return core._session_from_file(self.SERVER_NAME)
         except exceptions.ServerNotRunningError as e:
             raise RuntimeError(
                 "Could not read the server file. MAKE SURE YOU START THE "
@@ -146,7 +146,7 @@ class Test_call_against_real_server:
         # Bug the user if the server isn't running
         self.read_session_from_file()
         try:
-            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+            result = core.call(self.SERVER_NAME, "+", [1, 2, 3])
         except Exception as e:
             _raise_unexpected(e)
         eq_(result, 6)
@@ -163,13 +163,13 @@ class Test_call_against_real_server:
             # Do this call twice. First, check the exception, then check the
             # response structure.
             assert_raises(
-                emacs_porthole.json_rpc.MethodNotExposedError,
-                emacs_porthole.call,
+                core.json_rpc.MethodNotExposedError,
+                core.call,
                 self.SERVER_NAME,
                 "insert",
                 ["this is some text"],
             )
-            result = emacs_porthole.call(
+            result = core.call(
                 self.SERVER_NAME, "insert", ["this is some text"]
             )
             raise ValueError("Should never get here. Result: {}").format(result)
@@ -191,13 +191,13 @@ class Test_call_against_real_server:
     def test_call_invalid_server(self):
         # Test a call to an invalid server. This shouldn't get past the name
         # check.
-        assert_raises(ValueError, emacs_porthole.call, "server_that_cant_exist", "+", 1)
+        assert_raises(ValueError, core.call, "server_that_cant_exist", "+", 1)
 
     def test_call_nonexistant_server(self):
         # Make sure this server actually doesn't exist!
         assert_raises(
-            emacs_porthole.ServerNotRunningError,
-            emacs_porthole.call,
+            core.ServerNotRunningError,
+            core.call,
             "nonexistant-server-3280984",
             "+",
             [1],
@@ -205,14 +205,14 @@ class Test_call_against_real_server:
 
     def test_call_dead_but_cached(self):
         """Test a call to a server that is dead, but has its info cached."""
-        emacs_porthole._cache_session(
+        core._cache_session(
             "nonexistant-server-329384",
             {"port": 23098, "username": "1240981248", "password": "304130984184"},
         )
         # Make sure this server actually doesn't exist!
         assert_raises(
-            emacs_porthole.ServerNotRunningError,
-            emacs_porthole.call,
+            core.ServerNotRunningError,
+            core.call,
             "nonexistant-server-329384",
             "+",
             [1],
@@ -224,12 +224,12 @@ class Test_call_against_real_server:
         session = self.read_session_from_file()
         # We ensure the session was loaded
         assert "port" in session, session
-        emacs_porthole._cache_session(self.SERVER_NAME, session)
+        core._cache_session(self.SERVER_NAME, session)
         # Now modify the cache to be wrong. It should fail to connect, then
         # reload from disk.
-        emacs_porthole._server_info_cache[self.SERVER_NAME]["port"] -= 1
+        core._server_info_cache[self.SERVER_NAME]["port"] -= 1
         try:
-            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+            result = core.call(self.SERVER_NAME, "+", [1, 2, 3])
         except Exception as e:
             _raise_unexpected(e)
         eq_(result, 6)
@@ -242,15 +242,15 @@ class Test_call_against_real_server:
 
         """
         # First, ensure the info is cached.
-        session = emacs_porthole._session_from_file(self.SERVER_NAME)
+        session = core._session_from_file(self.SERVER_NAME)
         # We ensure the session was loaded
         assert "username" in session, session
-        emacs_porthole._cache_session(self.SERVER_NAME, session)
+        core._cache_session(self.SERVER_NAME, session)
         # Now modify the cache to be wrong. It should fail to connect, then
         # reload from disk.
-        emacs_porthole._server_info_cache[self.SERVER_NAME]["username"] = "wrong"
+        core._server_info_cache[self.SERVER_NAME]["username"] = "wrong"
         try:
-            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+            result = core.call(self.SERVER_NAME, "+", [1, 2, 3])
         except Exception as e:
             _raise_unexpected(e)
         eq_(result, 6)
@@ -273,14 +273,14 @@ class Test_call_against_real_server:
         # We ensure the session was loaded
         assert "port" in session, session
         # Cache it
-        emacs_porthole._cache_session(self.SERVER_NAME, session)
+        core._cache_session(self.SERVER_NAME, session)
         one_port_down = session["port"] - 1
         assert distutils.spawn.find_executable(
             "nc"
         ), "Netcat is needed to test TCP clashes. Could not find `nc`."
         # Open a dummy netcat TCP process on the next port down. It's possible
         # to get a port clash here - if we do, that's ok. It doesn't mean
-        # `emacs_porthole.py` is broken, it just means we were unlucky. Re-run
+        # `core.py` is broken, it just means we were unlucky. Re-run
         # the tests a few times until you hit a free pair.
         nc_process = subprocess.Popen(["nc", "-l", "{}".format(one_port_down)])
         # Give it a bit to start
@@ -290,8 +290,8 @@ class Test_call_against_real_server:
         try:
             # Now modify the cache to point to the NC process. It should
             # connect, then fail, then retry successfully from disk.
-            emacs_porthole._server_info_cache[self.SERVER_NAME]["port"] = one_port_down
-            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+            core._server_info_cache[self.SERVER_NAME]["port"] = one_port_down
+            result = core.call(self.SERVER_NAME, "+", [1, 2, 3])
         finally:
             # Clean up the nc process
             nc_process.kill()
@@ -315,7 +315,7 @@ class Test_call_against_real_server:
         # We ensure the session was loaded
         assert "port" in session, session
         # Cache it
-        emacs_porthole._cache_session(self.SERVER_NAME, session)
+        core._cache_session(self.SERVER_NAME, session)
         # Use a different port to the NC test, in case the NC process didn't end.
         two_ports_down = session["port"] - 2
         assert distutils.spawn.find_executable(
@@ -323,7 +323,7 @@ class Test_call_against_real_server:
         ), "Netcat is needed to test TCP clashes. Could not find `nc`."
         # Open a dummy netcat HTTP server on the next port down. It's possible
         # to get a port clash here - if we do, that's ok. It doesn't mean
-        # `emacs_porthole.py` is broken, it just means we were unlucky. Re-run
+        # `core.py` is broken, it just means we were unlucky. Re-run
         # the tests a few times until you hit a free pair.
         http_process = subprocess.Popen(
             ["python3", "-m", "http.server", "{}".format(two_ports_down)]
@@ -336,8 +336,8 @@ class Test_call_against_real_server:
         try:
             # Now modify the cache to point to the bad HTTP process. It should
             # connect, return an error, then retry successfully from disk.
-            emacs_porthole._server_info_cache[self.SERVER_NAME]["port"] = two_ports_down
-            result = emacs_porthole.call(self.SERVER_NAME, "+", [1, 2, 3])
+            core._server_info_cache[self.SERVER_NAME]["port"] = two_ports_down
+            result = core.call(self.SERVER_NAME, "+", [1, 2, 3])
         finally:
             # Clean up the nc process
             http_process.kill()
@@ -348,8 +348,8 @@ class Test_call_against_real_server:
         # won't respond within the allotted time and it should trigger a
         # timeout.
         assert_raises(
-            emacs_porthole.TimeoutError,
-            emacs_porthole.call,
+            core.TimeoutError,
+            core.call,
             self.SERVER_NAME,
             "sleep-for",
             [1],
@@ -437,7 +437,7 @@ class Test__valid_json_rpc_error:
         assert not json_rpc._valid_error(error)
 
 
-@patch("emacs_porthole.emacs_porthole._generate_unique_id", return_value="test_id")
+@patch("emacs_porthole.core._generate_unique_id", return_value="test_id")
 class Test__prepare_request:
     # "id" will be random - override it to make it predictable.
     def test_with_args(self, patched):
@@ -470,14 +470,14 @@ class Test__construct_address:
 
 
 # TODO: Swap both of these to `assert_called_with`
-@patch("emacs_porthole.emacs_porthole._send_request_from_cache", return_value="cache")
-@patch("emacs_porthole.emacs_porthole._send_request_from_disk", return_value="disk")
+@patch("emacs_porthole.core._send_request_from_cache", return_value="cache")
+@patch("emacs_porthole.core._send_request_from_disk", return_value="disk")
 class Test__send_request:
-    @patch("emacs_porthole.emacs_porthole._session_info_cached", return_value=True)
+    @patch("emacs_porthole.core._session_info_cached", return_value=True)
     def test_cached(self, *patched):
         eq_(_send_request("dummy_server", "dummy_json"), "cache")
 
-    @patch("emacs_porthole.emacs_porthole._session_info_cached", return_value=False)
+    @patch("emacs_porthole.core._session_info_cached", return_value=False)
     def test_not_cached(self, *patched):
         eq_(_send_request("dummy_server", "dummy_json"), "disk")
 
@@ -485,23 +485,23 @@ class Test__send_request:
 class Test__session_info_cached:
     # TODO: Swap both of these to with
     def test_cached(self):
-        emacs_porthole._server_info_cache = {"cache-test-server": "dummy_value"}
+        core._server_info_cache = {"cache-test-server": "dummy_value"}
         assert _session_info_cached("cache-test-server")
 
     def test_not_cached(self):
-        emacs_porthole._server_info_cache = {"cache-test-server": "dummy_value"}
+        core._server_info_cache = {"cache-test-server": "dummy_value"}
         assert not _session_info_cached("another-server")
 
 
 class Test__cache_session:
     def test_simple(self):
-        emacs_porthole._server_info_cache = {}
+        core._server_info_cache = {}
         _cache_session("caching-test-server", "dummy_info")
-        assert "caching-test-server" in emacs_porthole._server_info_cache
-        eq_(emacs_porthole._server_info_cache["caching-test-server"], "dummy_info")
+        assert "caching-test-server" in core._server_info_cache
+        eq_(core._server_info_cache["caching-test-server"], "dummy_info")
 
 
 class Test__session_from_cache:
     def test_simple(self):
-        emacs_porthole._server_info_cache = {"reading-test-server": "dummy_info"}
+        core._server_info_cache = {"reading-test-server": "dummy_info"}
         eq_(_session_from_cache("reading-test-server"), "dummy_info")
