@@ -8,6 +8,7 @@ tests.
 
 import inspect
 import os
+import sys
 import shutil
 import json
 import distutils.spawn
@@ -16,7 +17,10 @@ import subprocess
 import time
 
 from nose.tools import assert_raises, eq_
-from unittest.mock import MagicMock, Mock, patch
+if sys.version_info > (3, 3):
+    from unittest.mock import MagicMock, Mock, patch
+else:
+    from mock.mock import MagicMock, Mock, patch
 
 from emacs_porthole import core, exceptions, json_rpc
 from emacs_porthole.core import (
