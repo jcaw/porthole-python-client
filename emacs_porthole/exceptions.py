@@ -9,7 +9,7 @@ class PortholeConnectionError(PortholeCallError, requests.exceptions.RequestExce
     """Base class for all Porthole connection-related errors."""
 
     def __init__(self, message, underlying_error=None):
-        super().__init__(message)
+        super(PortholeConnectionError, self).__init__(message)
         self.underlying_error = underlying_error
 
 
@@ -31,7 +31,7 @@ class StrangeResponseError(ServerNotRunningError):
     """
 
     def __init__(self, message, response):
-        super().__init__(message)
+        super(StrangeResponseError, self).__init__(message)
         self.response = response
         # TODO: Is this case-sensitive?
         self.response_type = response.headers["Content-Type"]
@@ -51,7 +51,7 @@ class HTTPError(PortholeConnectionError):
     # TODO: Should this be a connection error? Should we split out internal 500
     #   errors?
     def __init__(self, message, response):
-        super().__init__(message)
+        super(PortholeConnectionError, self).__init__(message)
         self.response = response
         self.code = response.status_code
         self.content = response.text

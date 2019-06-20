@@ -39,7 +39,9 @@ class JsonRpcError(PortholeCallError):
 
     # TODO: Explain the data structure of this error.
     def __init__(self, response, message=None):
-        super().__init__(message or "A JSON-RPC 2.0 Error response was received.")
+        super(JsonRpcError, self).__init__(
+            message or "A JSON-RPC 2.0 Error response was received."
+        )
         if not valid_response(response):
             raise ValueError(
                 "Response was not a valid JSON-RPC 2.0 response. Please "
@@ -78,7 +80,7 @@ class ParseError(JsonRpcError):
     """
 
     def __init__(self, json_rpc_response):
-        super().__init__(
+        super(ParseError, self).__init__(
             json_rpc_response, message="The JSON-RPC request was not valid JSON."
         )
 
@@ -91,7 +93,9 @@ class InvalidRequestError(JsonRpcError):
     """
 
     def __init__(self, json_rpc_response):
-        super().__init__(json_rpc_response, message="Invalid JSON-RPC 2.0 request.")
+        super(InvalidRequestError, self).__init__(
+            json_rpc_response, message="Invalid JSON-RPC 2.0 request."
+        )
 
 
 class MethodNotExposedError(JsonRpcError):
@@ -102,7 +106,7 @@ class MethodNotExposedError(JsonRpcError):
     """
 
     def __init__(self, json_rpc_response):
-        super().__init__(
+        super(MethodNotExposedError, self).__init__(
             json_rpc_response,
             message="This method has not been exposed by the Porthole server.",
         )
@@ -118,7 +122,7 @@ class InvalidParamsError(JsonRpcError):
     """
 
     def __init__(self, json_rpc_response):
-        super().__init__(
+        super(InvalidParamsError, self).__init__(
             json_rpc_response, message="Method cannot be called with these parameters."
         )
 
@@ -143,7 +147,7 @@ class InternalMethodError(JsonRpcError):
     def __init__(self, json_rpc_response):
         # HACK: Do this early so we can extract info for the error message
         self._store_response(json_rpc_response)
-        super().__init__(
+        super(InternalMethodError, self).__init__(
             json_rpc_response,
             message=(
                 "There was an error executing the method: `{}`. Data: {}".format(
