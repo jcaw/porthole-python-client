@@ -184,12 +184,14 @@ def valid_response_string(string):
 
     """
     # Sanity check - make sure it's a string input
-    if not isinstance(string, str):
-        raise ValueError("Input must be a string.")
+    #
+    # Allow unicode too for Python 2
+    if not isinstance(string, (str, unicode)):
+        raise ValueError("Input must be a string. Was: {}".format(type(string)))
     try:
         # Decode the response into JSON
         response = json.loads(string)
-    except json.JSONDecodeError:
+    except ValueError:
         # Couldn't be decoded. Definitely not valid JSON.
         return False
     return valid_response(response)
@@ -200,7 +202,8 @@ def valid_response(response):
     has_id = "id" in response
     id_ = response.get("id")
     valid_id = has_id and (
-        isinstance(id_, str)
+        # Allow unicode too for Python 2
+        isinstance(id_, (str, unicode))
         or isinstance(id_, int)
         # We also have to account for the server not being able to return an ID
         or id_ is None
