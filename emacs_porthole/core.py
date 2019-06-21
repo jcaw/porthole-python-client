@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Client library for the Emacs Porthole RPC server.
 
 This library is designed to make it easy to invoke Porthole RPC calls.
