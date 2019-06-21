@@ -329,9 +329,14 @@ class Test_call_against_real_server:
         # to get a port clash here - if we do, that's ok. It doesn't mean
         # `core.py` is broken, it just means we were unlucky. Re-run
         # the tests a few times until you hit a free pair.
-        http_process = subprocess.Popen(
-            ["python3", "-m", "http.server", "{}".format(two_ports_down)]
-        )
+        if sys.version_info >= (3,):
+            http_process = subprocess.Popen(
+                ["python3", "-m", "http.server", "{}".format(two_ports_down)]
+            )
+        else:
+            http_process = subprocess.Popen(
+                ["python2", "-m", "SimpleHTTPServer", "{}".format(two_ports_down)]
+            )
         # Give it a bit to start (HTTP servers are slow to start. This is an
         # unreliable heuristic - bump the number up if it's failing.)
         time.sleep(0.5)
