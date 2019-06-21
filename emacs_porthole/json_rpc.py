@@ -2,6 +2,7 @@ import json
 
 
 from emacs_porthole.exceptions import PortholeCallError
+from emacs_porthole.utils import is_string
 
 
 class JsonRpcError(PortholeCallError):
@@ -186,7 +187,7 @@ def valid_response_string(string):
     # Sanity check - make sure it's a string input
     #
     # Allow unicode too for Python 2
-    if not isinstance(string, (str, unicode)):
+    if not is_string(string):
         raise ValueError("Input must be a string. Was: {}".format(type(string)))
     try:
         # Decode the response into JSON
@@ -203,7 +204,7 @@ def valid_response(response):
     id_ = response.get("id")
     valid_id = has_id and (
         # Allow unicode too for Python 2
-        isinstance(id_, (str, unicode))
+        is_string(id_)
         or isinstance(id_, int)
         # We also have to account for the server not being able to return an ID
         or id_ is None
