@@ -17,6 +17,7 @@ import subprocess
 import time
 
 from nose.tools import assert_raises, eq_
+
 if sys.version_info > (3, 3):
     from unittest.mock import MagicMock, Mock, patch
 else:
@@ -100,8 +101,7 @@ class Test__session_from_file:
         with open(dummy_file_path, "w") as f:
             json.dump(dummy_data, f)
         with patch(
-            "emacs_porthole.core._session_file_path",
-            return_value=dummy_file_path,
+            "emacs_porthole.core._session_file_path", return_value=dummy_file_path
         ):
             assert _session_from_file("any_name") == dummy_data
 
@@ -173,9 +173,7 @@ class Test_call_against_real_server:
                 "insert",
                 ["this is some text"],
             )
-            result = core.call(
-                self.SERVER_NAME, "insert", ["this is some text"]
-            )
+            result = core.call(self.SERVER_NAME, "insert", ["this is some text"])
             raise ValueError("Should never get here. Result: {}").format(result)
         except json_rpc.MethodNotExposedError as e:
             json_response = e.raw_response
@@ -215,11 +213,7 @@ class Test_call_against_real_server:
         )
         # Make sure this server actually doesn't exist!
         assert_raises(
-            core.ServerNotRunningError,
-            core.call,
-            "nonexistant-server-329384",
-            "+",
-            [1],
+            core.ServerNotRunningError, core.call, "nonexistant-server-329384", "+", [1]
         )
 
     def test_wrong_port_in_cache(self):
