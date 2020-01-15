@@ -245,7 +245,13 @@ def _prepare_request(method, params):
 
 def _construct_address(port):
     # TODO: API should be on a subdirectory. E.g. /emacs-porthole-call
-    return "http://localhost:{}".format(port)
+    # TODO: Protect against the loopback adapter not being on 127.0.0.1. Maybe
+    #   resolve it up-front at an earlier point?
+
+    # We use "127.0.0.1" directly (instead of "localhost") because on some
+    # platforms resolving localhost causes a hang on each request. (I.e. it
+    # tries to target the ipv6 version first, times out, then targets ipv4.)
+    return "http://127.0.0.1:{}".format(port)
 
 
 def _send_request(server_name, json, timeout=None):

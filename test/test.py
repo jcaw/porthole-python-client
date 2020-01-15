@@ -469,7 +469,7 @@ class Test__prepare_request:
 
 class Test__construct_address:
     def test_simple(self):
-        eq_(_construct_address(2345), "http://localhost:2345")
+        eq_(_construct_address(2345), "http://127.0.0.1:2345")
 
 
 # TODO: Swap both of these to `assert_called_with`
