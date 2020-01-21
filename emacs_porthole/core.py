@@ -83,7 +83,7 @@ def _get_temp_folder():
         # Windows is easy. %TEMP% should always exist, and be a user-restricted
         # directory.
         return os.environ["TEMP"]
-    elif system.lower() == "mac":
+    elif system.lower() == "darwin":
         return os.path.join(os.environ["HOME"], "Library")
     else:
         # On unknown systems, Porthole falls back to the same method it uses on
